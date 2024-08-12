@@ -137,7 +137,7 @@ model Card{
   creator           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId            String          @map("user_id")
 
-    sprint            Sprint?         @relation(fields: [sprintId], references: [id], onDelete: Cascade)
+  sprint            Sprint?         @relation(fields: [sprintId], references: [id], onDelete: Cascade)
   sprintId          String?         @map("sprint_id")
 
   attachments       Attachment[]

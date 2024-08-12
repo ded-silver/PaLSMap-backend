@@ -129,7 +129,6 @@ export class ListService {
 				})
 
 				const newOrder = currentSprint.list.length
-				console.log(newOrder)
 				data.order = newOrder + 2,
 				data.sprint = {
 					connect: {
@@ -141,7 +140,6 @@ export class ListService {
 			const newList = await prisma.list.create({
 				data: data
 			});
-			console.log(newList)
 
 			if (listToCopy.cards) {
 				await Promise.all(listToCopy.cards.map(card => prisma.card.create({
