@@ -28,19 +28,6 @@ export class AuthController {
 		return response
 	}
 
-  @Post('send-code')
-  async sendConfirmationCode(@Body() authDto: AuthDto) {
-    return this.authService.sendConfirmationCode(authDto);
-  }
-
-	@Post('check-code')
-  async checkConfirmationCode(
-		@Body() body: any,
-	) {
-		const {checkCodeDto, dto} = body 
-    return this.authService.checkConfirmationCode(checkCodeDto, dto);
-  }
-
 	@UsePipes(new ValidationPipe())
 	@HttpCode(200)
 	@Post('register')
@@ -48,7 +35,10 @@ export class AuthController {
 		@Body() dto: AuthDto,
 		@Res({ passthrough: true }) res: Response
 	) {
-		const { refreshToken, ...response } = await this.authService.register(dto)
+		const { refreshToken, ...response } = await this.authService.register({
+			...dto,
+			isAdmin: false
+		})
 		this.authService.addRefreshTokenToResponse(res, refreshToken)
 
 		return response

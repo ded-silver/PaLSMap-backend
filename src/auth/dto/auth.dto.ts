@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MinLength } from 'class-validator'
+import { IsBoolean, IsEmail, IsString, MinLength } from 'class-validator'
 
 export class AuthDto {
 	@IsEmail()
@@ -10,5 +10,6 @@ export class AuthDto {
 	@IsString()
 	password: string
 
-
+ @IsBoolean()
+ isAdmin: boolean
 }
