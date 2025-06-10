@@ -8,13 +8,13 @@ datasource db {
 }
 
 model User{
-  id                String          @id              @default(uuid())
-  createdAt         DateTime        @default(now())  @map("created_at")
-  updatedAt         DateTime        @updatedAt       @map("updated_at")
+  id                String              @id              @default(uuid())
+  createdAt         DateTime            @default(now())  @map("created_at")
+  updatedAt         DateTime            @updatedAt       @map("updated_at")
 
-  isAdmin           Boolean                          @map("is_admin")
+  isAdmin           Boolean                              @map("is_admin")
 
-  email             String          @unique
+  email             String              @unique
   name              String?
 
   password          String
@@ -23,31 +23,70 @@ model User{
 }
 
 model Node {
-  id                String          @id               @default(cuid())
-  type              NodeType
-  position          Json                                                      // { x: number, y: number }
-  data              Json                                                      // содержит tableName, tableColumns, tableRows, handlers
+  id                    String          @id @default(cuid())
+  type                  NodeType      
+  position              Json      
 
-  parent            Node?           @relation("NestedNode", fields: [parentId], references: [id], onDelete: Cascade)
-  parentId          String?                                                   // для вложенных нод 
-  children          Node[]          @relation("NestedNode")
+  data                  NodeData?       @relation("NodeToNodeData")
+  nodeDataId            String?         @unique
+
+  parent                Node?           @relation("NestedNode", fields: [parentId], references: [id], onDelete: Cascade)
+  parentId              String?     
+  children              Node[]          @relation("NestedNode")
+}
+
+model NodeData {
+  id                    String          @id @default(uuid())
+  label                 String
+  handlers              Json
+
+  node                  Node            @relation("NodeToNodeData", fields: [nodeId], references: [id], onDelete: Cascade)
+  nodeId                String          @unique
+
+  tableData             TableData[]
+}
+
+model TableData {
+  id                    String          @id @default(uuid())
+  protectionName        String
+  excerpt               String
+  source                String
+  triggeringConditions  String
+  triggeringAlgorithm   String
+
+  nodeData              NodeData?       @relation(fields: [nodeDataId], references: [id], onDelete: Cascade)
+  nodeDataId            String?    
+
+  order Int 
 }
 
 model Edge {
-  id                String          @id               @default(cuid())
-  source            String
-  target            String
- 	sourceHandle      String
-  targetHandle      String
-  type              String
-  style             Json
+  id                    String          @id               @default(cuid())
+  source                String
+  target                String
+  sourceHandle          String
+  targetHandle          String
+  type                  String
+  style                 Json
 }
 
 enum NodeType {
-  TankPark
   OPS
+  TankPark
+  Checkpoint
+  Valve
+  Pump
+  ChildTankPark
+  AccountingSystem
   Factory
   Object
   ParentObject
   ChildObject
+  PNS
+  MNS
+  SAR
+  FGU
+  KPPSOD
+  Capacity
+  River
 }

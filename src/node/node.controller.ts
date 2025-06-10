@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common'
 
 import { NodeService } from './node.service'
-import { NodeDto } from './node.dto'
+import { NodeDataDto, NodeDto } from './node.dto'
 
 // Декоратор @Controller определяет базовый путь для всех маршрутов в этом контроллере
 @Controller('nodes')
@@ -35,6 +35,26 @@ export class NodeController {
 	@Get('children/:parentId')
 	async findChildren(@Param('parentId') parentId: string) {
 		return this.nodeService.findChildren(parentId)
+	}
+
+	@Get('data/:parentId')
+	async getNodeData(@Param('parentId') parentId: string) {
+		return this.nodeService.getNodeData(parentId)
+	}
+
+	@Post('data/:id')
+	async createNodeData(@Param('id') id: string, @Body() dto: NodeDataDto) {
+		return this.nodeService.createNodeData({ id, dto })
+	}
+
+	@Delete('data/:id')
+	async deleteNodeData(@Param('id') id: string) {
+		return this.nodeService.deleteNodeData(id)
+	}
+
+	@Patch('data/:id')
+	async updateNodeData(@Param('id') id: string, @Body() dto: NodeDataDto) {
+		return this.nodeService.updateNodeData({ id, dto })
 	}
 
 	@Post()

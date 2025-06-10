@@ -14,10 +14,6 @@ export class UserService {
 			where: {
 				id
 			}
-			// include: {
-			// 	roles: true,
-			// 	cards: true
-			// }
 		})
 
 		try {
@@ -35,11 +31,6 @@ export class UserService {
 			where: {
 				id
 			}
-			// include: {
-			// 	tasks: true,
-			// 	boards: true,
-			// 	roles: true
-			// }
 		})
 	}
 

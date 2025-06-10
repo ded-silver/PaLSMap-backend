@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from 'src/prisma.service'
-import { NodeDto } from './node.dto'
+import { NodeDataDto, NodeDto } from './node.dto'
 
 // Декоратор @Injectable делает сервис доступным для внедрения зависимостей (DI)
 @Injectable()
@@ -13,7 +13,12 @@ export class NodeService {
 		return this.prisma.node.findMany({
 			where: { parentId: null },
 			include: {
-				children: true, // подчинённые узлы
+				data: true,
+				children: {
+					include: {
+						data: true
+					}
+				}, // подчинённые узлы
 				parent: true // родительский узел
 			}
 		})
@@ -35,17 +40,72 @@ export class NodeService {
 
 	// Метод для создания нового узла
 	async create(dto: NodeDto) {
-		return this.prisma.node.create({
+		const node = await this.prisma.node.create({
 			data: {
-				type: dto.type, // Тип узла (enum NodeType)
-				position: dto.position, // JSON-объект с координатами { x, y }
-				data: dto.data, // JSON-данные узла (таблицы и прочее)
-				// Если указан parentId — установить связь с родительским узлом
-				parent: dto.parentId ? { connect: { id: dto.parentId } } : undefined
+				type: dto.type,
+				position: dto.position,
+				parent: dto.parentId ? { connect: { id: dto.parentId } } : undefined,
+				data: {
+					create: {
+						label: dto.data.label,
+						handlers: dto.data.handlers
+					}
+				}
 			},
 			include: {
 				parent: true,
 				children: true
+			}
+		})
+		return node
+	}
+
+	async getNodeData(id: string) {
+		const nodeData = await this.prisma.nodeData.findFirst({
+			where: {
+				nodeId: id
+			}
+		})
+		const data = await this.prisma.tableData.findMany({
+			where: {
+				nodeDataId: nodeData.id
+			},orderBy: {order: 'asc'}
+		})
+		if (data.length === 0) {
+			return []
+		}
+		return data
+	}
+
+	async createNodeData({ dto, id }: { dto: NodeDataDto; id: string }) {
+		const nodeData = await this.prisma.nodeData.findUnique({
+			where: {
+				nodeId: id
+			}
+		})
+
+		const dataTable = this.prisma.tableData.create({
+			data: {
+				...dto,
+				nodeDataId: nodeData.id
+			}
+		})
+		return dataTable
+	}
+
+	async updateNodeData({ dto, id }: { dto: NodeDataDto; id: string }) {
+		return this.prisma.tableData.update({
+			where: {
+				id
+			},
+			data: dto
+		})
+	}
+
+	async deleteNodeData(id: string) {
+		return this.prisma.tableData.delete({
+			where: {
+				id: id
 			}
 		})
 	}
@@ -63,7 +123,12 @@ export class NodeService {
 			data: {
 				type: dto.type,
 				position: dto.position,
-				data: dto.data,
+				data: {
+					update: {
+						label: dto.data.label,
+						handlers: dto.data.handlers
+					}
+				},
 				// Если указан parentId — установить нового родителя
 				// Если null или не указан — удалить связь с родителем
 				parent: dto.parentId
@@ -97,6 +162,9 @@ export class NodeService {
 		return this.prisma.node.findMany({
 			where: {
 				parentId
+			},
+			include: {
+				data: true
 			}
 		})
 	}
