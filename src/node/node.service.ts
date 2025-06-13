@@ -123,6 +123,7 @@ export class NodeService {
 			data: {
 				type: dto.type,
 				position: dto.position,
+				measured: dto.measured,
 				data: {
 					update: {
 						label: dto.data.label,

@@ -14,7 +14,14 @@ export class NodeDto {
 	// Обязательное поле: данные узла, также в формате JSON
 	// Обычно содержит информацию о таблице: имя, колонки, строки, обработчики
 	@IsJSON()
-	data: NodeData // содержит tableName, tableColumns, tableRows, handlers
+	data: NodeData
+	
+	@IsJSON()
+	measured: {
+		width: number
+		height: number
+	}
+	// содержит tableName, tableColumns, tableRows, handlers
 
 	// Необязательное поле: идентификатор родительского узла, строка (может отсутствовать)
 	@IsOptional()

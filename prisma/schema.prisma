@@ -30,6 +30,8 @@ model Node {
   data                  NodeData?       @relation("NodeToNodeData")
   nodeDataId            String?         @unique
 
+  measured              Json?
+
   parent                Node?           @relation("NestedNode", fields: [parentId], references: [id], onDelete: Cascade)
   parentId              String?     
   children              Node[]          @relation("NestedNode")
@@ -51,8 +53,8 @@ model TableData {
   protectionName        String
   excerpt               String
   source                String
-  triggeringConditions  String
   triggeringAlgorithm   String
+  triggeringConditions  String
 
   nodeData              NodeData?       @relation(fields: [nodeDataId], references: [id], onDelete: Cascade)
   nodeDataId            String?    
