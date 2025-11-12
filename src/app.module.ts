@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module'
 import { EdgeModule } from './edge/edge.module'
 import { NodeModule } from './node/node.module'
 import { UserModule } from './user/user.module'
+import { DictionaryModule } from './dictionary/dictionary.module'
 
 @Module({
 	imports: [
@@ -12,7 +13,8 @@ import { UserModule } from './user/user.module'
 		AuthModule,
 		UserModule,
 		NodeModule,
-		EdgeModule
+		EdgeModule,
+		DictionaryModule
 	]
 })
 export class AppModule {}

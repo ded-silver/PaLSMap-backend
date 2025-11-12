@@ -19,6 +19,9 @@ model User{
 
   password          String
 
+  createdDictionaries   Dictionary[]    @relation("CreatedDictionaries")
+  updatedDictionaries   Dictionary[]    @relation("UpdatedDictionaries")
+
   @@map("user")
 }
 
@@ -70,6 +73,23 @@ model Edge {
   targetHandle          String
   type                  String
   style                 Json
+}
+
+model Dictionary {
+  id                    String          @id               @default(uuid())
+  short                 String          @unique           @map("short")
+  full                  String                            @map("full")
+  
+  createdAt             DateTime        @default(now())   @map("created_at")
+  updatedAt             DateTime        @updatedAt        @map("updated_at")
+
+  createdBy             User?           @relation("CreatedDictionaries", fields: [createdById], references: [id], onDelete: SetNull)
+  createdById           String?         @map("created_by_id")
+  
+  updatedBy             User?           @relation("UpdatedDictionaries", fields: [updatedById], references: [id], onDelete: SetNull)
+  updatedById           String?         @map("updated_by_id")
+
+  @@map("dictionary")
 }
 
 enum NodeType {
