@@ -10,6 +10,7 @@ import {
 
 import { NodeService } from './node.service'
 import { NodeDataDto, NodeDto } from './node.dto'
+import { Admin } from 'src/auth/decorators/auth.decorator'
 
 @Controller('nodes')
 export class NodeController {
@@ -41,31 +42,37 @@ export class NodeController {
 	}
 
 	@Post('data/:id')
+	@Admin()
 	async createNodeData(@Param('id') id: string, @Body() dto: NodeDataDto) {
 		return this.nodeService.createNodeData({ id, dto })
 	}
 
 	@Delete('data/:id')
+	@Admin()
 	async deleteNodeData(@Param('id') id: string) {
 		return this.nodeService.deleteNodeData(id)
 	}
 
 	@Patch('data/:id')
+	@Admin()
 	async updateNodeData(@Param('id') id: string, @Body() dto: NodeDataDto) {
 		return this.nodeService.updateNodeData({ id, dto })
 	}
 
 	@Post()
+	@Admin()
 	async create(@Body() dto: NodeDto) {
 		return this.nodeService.create(dto)
 	}
 
 	@Patch(':id')
+	@Admin()
 	async update(@Param('id') id: string, @Body() dto: NodeDto) {
 		return this.nodeService.update(id, dto)
 	}
 
 	@Delete(':id')
+	@Admin()
 	async delete(@Param('id') id: string) {
 		return this.nodeService.delete(id)
 	}
