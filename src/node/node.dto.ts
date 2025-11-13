@@ -1,18 +1,13 @@
 import { IsEnum, IsJSON, IsNumber, IsOptional, IsString } from 'class-validator'
 import { NodeData, NodeType } from '@prisma/client'
 
-// DTO для создания нового узла
 export class NodeDto {
-	// Обязательное поле: тип узла должен соответствовать одному из значений перечисления NodeType
 	@IsEnum(NodeType)
 	type: NodeType
 
-	// Обязательное поле: позиция узла должна быть валидным JSON (например, { x: number, y: number })
 	@IsJSON()
-	position: any // { x: number, y: number }
+	position: any
 
-	// Обязательное поле: данные узла, также в формате JSON
-	// Обычно содержит информацию о таблице: имя, колонки, строки, обработчики
 	@IsJSON()
 	data: NodeData
 	
@@ -21,9 +16,7 @@ export class NodeDto {
 		width: number
 		height: number
 	}
-	// содержит tableName, tableColumns, tableRows, handlers
 
-	// Необязательное поле: идентификатор родительского узла, строка (может отсутствовать)
 	@IsOptional()
 	@IsString()
 	parentId?: string

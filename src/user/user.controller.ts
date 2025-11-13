@@ -20,7 +20,6 @@ import { UserService } from './user.service'
 export class UserController {
 	constructor(private readonly userService: UserService) {}
 
-	// Новый метод: получить текущего пользователя
 	@Get()
 	@Auth()
 	async getProfile(@CurrentUser('id') id: string) {

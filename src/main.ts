@@ -4,11 +4,6 @@ import * as express from 'express';
 import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
-    // const httpsOptions = {
-    //     key: process.env.PRIVKEY,
-    //     cert: process.env.FULLCHAIN,
-    // };
-
     const app = await NestFactory.create(AppModule);
 
     app.setGlobalPrefix('api');

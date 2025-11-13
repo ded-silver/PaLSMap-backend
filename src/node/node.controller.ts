@@ -11,10 +11,8 @@ import {
 import { NodeService } from './node.service'
 import { NodeDataDto, NodeDto } from './node.dto'
 
-// Декоратор @Controller определяет базовый путь для всех маршрутов в этом контроллере
 @Controller('nodes')
 export class NodeController {
-	// Внедрение зависимости NodeService для вызова бизнес-логики
 	constructor(private readonly nodeService: NodeService) {}
 
 	@Get()

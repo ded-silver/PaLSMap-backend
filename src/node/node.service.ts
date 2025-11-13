@@ -2,13 +2,10 @@ import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from 'src/prisma.service'
 import { NodeDataDto, NodeDto } from './node.dto'
 
-// Декоратор @Injectable делает сервис доступным для внедрения зависимостей (DI)
 @Injectable()
 export class NodeService {
-	// Внедрение PrismaService для доступа к базе данных
 	constructor(private readonly prisma: PrismaService) {}
 
-	// Метод для получения всех узлов, включая их детей и родителя
 	async findAll() {
 		return this.prisma.node.findMany({
 			where: { parentId: null },
@@ -18,19 +15,17 @@ export class NodeService {
 					include: {
 						data: true
 					}
-				}, // подчинённые узлы
-				parent: true // родительский узел
+				},
+				parent: true
 			}
 		})
 	}
 
-	// Метод для поиска узла по ID, включая детей и родителя
 	async findById(id: string) {
 		const node = await this.prisma.node.findUnique({
 			where: { id }
 		})
 
-		// Если узел не найден — выбрасывается исключение 404
 		if (!node) {
 			throw new NotFoundException(`Node with ID ${id} not found`)
 		}
@@ -38,7 +33,6 @@ export class NodeService {
 		return node
 	}
 
-	// Метод для создания нового узла
 	async create(dto: NodeDto) {
 		const node = await this.prisma.node.create({
 			data: {
@@ -110,9 +104,7 @@ export class NodeService {
 		})
 	}
 
-	// Метод для обновления существующего узла
 	async update(id: string, dto: NodeDto) {
-		// Проверка существования узла перед обновлением
 		const node = await this.prisma.node.findUnique({ where: { id } })
 		if (!node) {
 			throw new NotFoundException(`Node with ID ${id} not found`)
@@ -130,8 +122,6 @@ export class NodeService {
 						handlers: dto.data.handlers
 					}
 				},
-				// Если указан parentId — установить нового родителя
-				// Если null или не указан — удалить связь с родителем
 				parent: dto.parentId
 					? { connect: { id: dto.parentId } }
 					: { disconnect: true }
@@ -139,9 +129,7 @@ export class NodeService {
 		})
 	}
 
-	// Метод для удаления узла по ID
 	async delete(id: string) {
-		// Предварительная проверка наличия узла
 		const node = await this.prisma.node.findUnique({ where: { id } })
 
 		if (!node) {
@@ -151,14 +139,12 @@ export class NodeService {
 			where: { OR: [{ source: id }, { target: id }] }
 		})
 		const deletedNode = await this.prisma.node.delete({ where: { id } })
-		// Удаление узла
 		return {
 			edges,
 			deletedNode
 		}
 	}
 
-	// Метод для получения всех детей по ID родительского узла
 	async findChildren(parentId: string) {
 		return this.prisma.node.findMany({
 			where: {
@@ -170,7 +156,6 @@ export class NodeService {
 		})
 	}
 
-	// Метод для получения всех корневых узлов (у которых нет родителя)
 	async findRootNodes() {
 		return this.prisma.node.findMany({
 			where: {

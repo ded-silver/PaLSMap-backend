@@ -58,7 +58,6 @@ export class DictionaryService {
 	}
 
 	async create(dto: CreateDictionaryDto, userId: string) {
-		// Проверка уникальности
 		const existing = await this.prisma.dictionary.findUnique({
 			where: { short: dto.short }
 		})
@@ -85,7 +84,6 @@ export class DictionaryService {
 	}
 
 	async update(id: string, dto: UpdateDictionaryDto, userId: string) {
-		// Проверка существования
 		const existing = await this.prisma.dictionary.findUnique({
 			where: { id }
 		})
@@ -94,7 +92,6 @@ export class DictionaryService {
 			throw new NotFoundException(`Запись с ID ${id} не найдена`)
 		}
 
-		// Проверка уникальности, если изменяется short
 		if (dto.short && dto.short !== existing.short) {
 			const duplicate = await this.prisma.dictionary.findUnique({
 				where: { short: dto.short }

@@ -64,18 +64,14 @@ export class AuthService {
 
 	async getUserIdFromToken(token: string): Promise<string> {
 		try {
-			// Валидируем и расшифровываем токен с помощью JwtService
 			const payload = await this.jwt.verifyAsync(token)
-			// Удостоверяемся, что payload содержит поле id
 			if (!payload || typeof payload.id !== 'string') {
 				throw new UnauthorizedException('Invalid token')
 			}
 
-			// Если все проверки пройдены, возвращаем userId из токена
 			return payload.id
 		} catch (e) {
 			console.error(e)
-			// Обрабатываем ошибки, связанные с JWT, и выбрасываем исключения
 			throw new UnauthorizedException('Invalid token')
 		}
 	}
@@ -106,7 +102,6 @@ export class AuthService {
 		return user
 	}
 
-	// Токен идет не в куки, а response пихать в локал стораге
 	addRefreshTokenToResponse(res: Response, refreshToken: string) {
 		const expiresIn = new Date()
 		expiresIn.setDate(expiresIn.getDate() + this.EXPIRE_DAY_REFRESH_TOKEN)
@@ -116,7 +111,6 @@ export class AuthService {
 			domain: process.env.DOMAIN,
 			expires: expiresIn,
 			secure: true,
-			// lax if production
 			sameSite: 'lax'
 		})
 	}
@@ -127,7 +121,6 @@ export class AuthService {
 			domain: process.env.DOMAIN,
 			expires: new Date(0),
 			secure: true,
-			// lax if production
 			sameSite: 'lax'
 		})
 	}
