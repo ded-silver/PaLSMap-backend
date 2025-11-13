@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator'
+import { IsString, IsObject, IsOptional } from 'class-validator'
 
 export class CreateEdgeDto {
 	@IsString()
@@ -13,9 +13,15 @@ export class CreateEdgeDto {
 	@IsString()
 	targetHandle: string
 
+	@IsOptional()
 	@IsString()
-	type: string
+	type?: string
 
-	@IsString()
-	style: string
+	@IsOptional()
+	@IsObject()
+	style?: {
+		strokeWidth?: number
+		stroke?: string
+		[key: string]: any
+	}
 }

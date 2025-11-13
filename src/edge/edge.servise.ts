@@ -8,7 +8,14 @@ export class EdgeService {
 
 	async create(dto: CreateEdgeDto) {
 		return this.prisma.edge.create({
-			data: dto
+			data: {
+				...dto,
+				type: dto.type || 'straight',
+				style: dto.style || {
+					strokeWidth: 1,
+					stroke: 'black'
+				}
+			}
 		})
 	}
 
