@@ -2,7 +2,8 @@ import {
 	IsEmail,
 	IsOptional,
 	IsString,
-	MinLength
+	IsUrl,
+	MaxLength
 } from 'class-validator'
 
 export class UserDto {
@@ -12,12 +13,16 @@ export class UserDto {
 
 	@IsString()
 	@IsOptional()
+	@MaxLength(100)
 	name?: string
 
-	@IsOptional()
-	@MinLength(6, {
-		message: 'Password must be at least 6 characters long'
-	})
 	@IsString()
-	password?: string
+	@IsOptional()
+	@MaxLength(100)
+	position?: string
+
+	@IsString()
+	@IsOptional()
+	@IsUrl({}, { message: 'Avatar must be a valid URL' })
+	avatar?: string
 }

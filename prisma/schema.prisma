@@ -16,6 +16,8 @@ model User{
 
   email             String              @unique
   name              String?
+  position          String?                             @map("position")
+  avatar            String?                             @map("avatar")
 
   password          String
 

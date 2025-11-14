@@ -6,6 +6,7 @@ import {
 	Get,
 	HttpCode,
 	Param,
+	Post,
 	Put,
 	UsePipes,
 	ValidationPipe
@@ -14,6 +15,7 @@ import {
 import { Auth } from 'src/auth/decorators/auth.decorator'
 import { CurrentUser } from 'src/auth/decorators/user.decorator'
 import { UserDto } from './user.dto'
+import { ChangePasswordDto } from './dto/change-password.dto'
 import { UserService } from './user.service'
 
 @Controller('user/profile')
@@ -24,6 +26,17 @@ export class UserController {
 	@Auth()
 	async getProfile(@CurrentUser('id') id: string) {
 		return this.userService.findById(id)
+	}
+
+	@Post('change-password')
+	@Auth()
+	@UsePipes(new ValidationPipe())
+	@HttpCode(200)
+	async changePassword(
+		@CurrentUser('id') id: string,
+		@Body() dto: ChangePasswordDto
+	) {
+		return this.userService.changePassword(id, dto)
 	}
 
 	@Get(':id')
