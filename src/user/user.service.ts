@@ -7,6 +7,8 @@ import {
 	UnauthorizedException
 } from '@nestjs/common'
 import { hash, verify } from 'argon2'
+import * as fs from 'fs'
+import * as path from 'path'
 import { AuthDto } from 'src/auth/dto/auth.dto'
 import { PrismaService } from 'src/prisma.service'
 import { UserDto } from './user.dto'
@@ -180,6 +182,50 @@ export class UserService {
 				avatar: true,
 				isAdmin: true,
 				isSuperAdmin: true,
+				createdAt: true,
+				updatedAt: true
+			} as any
+		})
+	}
+
+	async updateAvatar(id: string, avatarUrl: string) {
+		const user = await this.prisma.user.findUnique({
+			where: { id },
+			select: { avatar: true } as any
+		})
+
+		const currentAvatar = (user as any)?.avatar as string | null | undefined
+
+		if (
+			currentAvatar &&
+			typeof currentAvatar === 'string' &&
+			currentAvatar.startsWith('/static/uploads/avatars/')
+		) {
+			const oldFilePath = path.join(
+				process.cwd(),
+				'uploads',
+				'avatars',
+				path.basename(currentAvatar)
+			)
+			try {
+				if (fs.existsSync(oldFilePath)) {
+					fs.unlinkSync(oldFilePath)
+				}
+			} catch (error) {
+				console.error('Ошибка при удалении старого аватара:', error)
+			}
+		}
+
+		return this.prisma.user.update({
+			where: { id },
+			data: { avatar: avatarUrl },
+			select: {
+				id: true,
+				email: true,
+				name: true,
+				position: true,
+				avatar: true,
+				isAdmin: true,
 				createdAt: true,
 				updatedAt: true
 			} as any

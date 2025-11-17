@@ -2,15 +2,20 @@
 /* eslint-disable no-console */
 import {
 	Body,
+	BadRequestException,
 	Controller,
 	Get,
 	HttpCode,
 	Param,
 	Post,
 	Put,
+	UploadedFile,
+	UseInterceptors,
 	UsePipes,
 	ValidationPipe
 } from '@nestjs/common'
+import { FileInterceptor } from '@nestjs/platform-express'
+import { Express } from 'express'
 
 import { Auth } from 'src/auth/decorators/auth.decorator'
 import { CurrentUser } from 'src/auth/decorators/user.decorator'
@@ -39,10 +44,20 @@ export class UserController {
 		return this.userService.changePassword(id, dto)
 	}
 
-	@Get(':id')
+	@Post('avatar/upload')
 	@Auth()
-	async findById(@Param('id') id: string) {
-		return this.userService.findById(id)
+	@UseInterceptors(FileInterceptor('avatar'))
+	@HttpCode(200)
+	async uploadAvatar(
+		@CurrentUser('id') id: string,
+		@UploadedFile() file: Express.Multer.File
+	) {
+		if (!file) {
+			throw new BadRequestException('Файл не был загружен')
+		}
+
+		const avatarUrl = `/static/uploads/avatars/${file.filename}`
+		return this.userService.updateAvatar(id, avatarUrl)
 	}
 
 	@UsePipes(new ValidationPipe())
@@ -51,5 +66,11 @@ export class UserController {
 	@Auth()
 	async updateProfile(@CurrentUser('id') id: string, @Body() dto: UserDto) {
 		return this.userService.update(id, dto)
+	}
+
+	@Get(':id')
+	@Auth()
+	async findById(@Param('id') id: string) {
+		return this.userService.findById(id)
 	}
 }
