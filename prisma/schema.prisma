@@ -13,6 +13,7 @@ model User{
   updatedAt         DateTime            @updatedAt       @map("updated_at")
 
   isAdmin           Boolean                              @map("is_admin")
+  isSuperAdmin      Boolean              @default(false)  @map("is_super_admin")
 
   email             String              @unique
   name              String?

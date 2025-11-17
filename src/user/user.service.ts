@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import {
 	BadRequestException,
+	ForbiddenException,
 	Injectable,
 	NotFoundException,
 	UnauthorizedException
@@ -10,6 +11,7 @@ import { AuthDto } from 'src/auth/dto/auth.dto'
 import { PrismaService } from 'src/prisma.service'
 import { UserDto } from './user.dto'
 import { ChangePasswordDto } from './dto/change-password.dto'
+import { UpdateUserByAdminDto } from './dto/update-user-by-admin.dto'
 
 @Injectable()
 export class UserService {
@@ -128,6 +130,56 @@ export class UserService {
 				position: true,
 				avatar: true,
 				isAdmin: true,
+				createdAt: true,
+				updatedAt: true
+			} as any
+		})
+	}
+
+	async findAll() {
+		return this.prisma.user.findMany({
+			select: {
+				id: true,
+				email: true,
+				name: true,
+				position: true,
+				avatar: true,
+				isAdmin: true,
+				isSuperAdmin: true,
+				createdAt: true,
+				updatedAt: true
+			} as any,
+			orderBy: {
+				createdAt: 'desc'
+			}
+		})
+	}
+
+	async updateByAdmin(id: string, dto: UpdateUserByAdminDto) {
+		const targetUser = await this.prisma.user.findUnique({
+			where: { id },
+			select: { isSuperAdmin: true } as any
+		})
+
+		if (!targetUser) {
+			throw new NotFoundException('User not found')
+		}
+
+		if (targetUser.isSuperAdmin) {
+			throw new ForbiddenException('Cannot modify super admin')
+		}
+
+		return this.prisma.user.update({
+			where: { id },
+			data: dto,
+			select: {
+				id: true,
+				email: true,
+				name: true,
+				position: true,
+				avatar: true,
+				isAdmin: true,
+				isSuperAdmin: true,
 				createdAt: true,
 				updatedAt: true
 			} as any
