@@ -48,6 +48,9 @@ model NodeData {
   label                 String
   handlers              Json
 
+  locked                Boolean?        @default(false)
+  visualState           Json?
+
   node                  Node            @relation("NodeToNodeData", fields: [nodeId], references: [id], onDelete: Cascade)
   nodeId                String          @unique
 
