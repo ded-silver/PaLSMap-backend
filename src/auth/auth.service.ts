@@ -106,22 +106,34 @@ export class AuthService {
 		const expiresIn = new Date()
 		expiresIn.setDate(expiresIn.getDate() + this.EXPIRE_DAY_REFRESH_TOKEN)
 
-		res.cookie(this.REFRESH_TOKEN_NAME, refreshToken, {
+		const cookieOptions = {
 			httpOnly: true,
-			domain: process.env.DOMAIN,
 			expires: expiresIn,
 			secure: true,
-			sameSite: 'lax'
-		})
+			sameSite: 'lax' as const,
+			path: '/'
+		}
+
+		if (process.env.DOMAIN) {
+			cookieOptions['domain'] = process.env.DOMAIN
+		}
+
+		res.cookie(this.REFRESH_TOKEN_NAME, refreshToken, cookieOptions)
 	}
 
 	removeRefreshTokenFromResponse(res: Response) {
-		res.cookie(this.REFRESH_TOKEN_NAME, '', {
+		const cookieOptions = {
 			httpOnly: true,
-			domain: process.env.DOMAIN,
 			expires: new Date(0),
 			secure: true,
-			sameSite: 'lax'
-		})
+			sameSite: 'lax' as const,
+			path: '/'
+		}
+
+		if (process.env.DOMAIN) {
+			cookieOptions['domain'] = process.env.DOMAIN
+		}
+
+		res.cookie(this.REFRESH_TOKEN_NAME, '', cookieOptions)
 	}
 }
