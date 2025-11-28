@@ -24,6 +24,7 @@ model User{
 
   createdDictionaries   Dictionary[]    @relation("CreatedDictionaries")
   updatedDictionaries   Dictionary[]    @relation("UpdatedDictionaries")
+  nodeHistory           NodeHistory[]
 
   @@map("user")
 }
@@ -117,4 +118,41 @@ enum NodeType {
   KPPSOD
   Capacity
   River
+}
+
+model NodeHistory {
+  id          String      @id @default(uuid())
+  createdAt   DateTime    @default(now()) @map("created_at")
+  userId      String      @map("user_id")
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entityType  EntityType  @map("entity_type")
+  entityId    String      @map("entity_id")
+  actionType  ActionType  @map("action_type")
+  changes     Json        
+  description String?     @map("description")
+
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("node_history")
+}
+
+enum EntityType {
+  NODE
+  EDGE
+  TABLE_DATA
+}
+
+enum ActionType {
+  CREATE
+  UPDATE
+  DELETE
+  MOVE
+  LOCK
+  UNLOCK
+  VISUAL_STATE_CHANGE
+  PARENT_CHANGE
+  HANDLERS_CHANGE
+  LABEL_CHANGE
+  TYPE_CHANGE
 }

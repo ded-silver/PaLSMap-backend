@@ -11,6 +11,7 @@ import {
 import { NodeService } from './node.service'
 import { NodeDataDto, NodeDto } from './node.dto'
 import { Admin } from 'src/auth/decorators/auth.decorator'
+import { CurrentUser } from 'src/auth/decorators/user.decorator'
 
 @Controller('nodes')
 export class NodeController {
@@ -43,37 +44,52 @@ export class NodeController {
 
 	@Post('data/:id')
 	@Admin()
-	async createNodeData(@Param('id') id: string, @Body() dto: NodeDataDto) {
-		return this.nodeService.createNodeData({ id, dto })
+	async createNodeData(
+		@Param('id') id: string,
+		@Body() dto: NodeDataDto,
+		@CurrentUser('id') userId: string
+	) {
+		return this.nodeService.createNodeData({ id, dto, userId })
 	}
 
 	@Delete('data/:id')
 	@Admin()
-	async deleteNodeData(@Param('id') id: string) {
-		return this.nodeService.deleteNodeData(id)
+	async deleteNodeData(
+		@Param('id') id: string,
+		@CurrentUser('id') userId: string
+	) {
+		return this.nodeService.deleteNodeData(id, userId)
 	}
 
 	@Patch('data/:id')
 	@Admin()
-	async updateNodeData(@Param('id') id: string, @Body() dto: NodeDataDto) {
-		return this.nodeService.updateNodeData({ id, dto })
+	async updateNodeData(
+		@Param('id') id: string,
+		@Body() dto: NodeDataDto,
+		@CurrentUser('id') userId: string
+	) {
+		return this.nodeService.updateNodeData({ id, dto, userId })
 	}
 
 	@Post()
 	@Admin()
-	async create(@Body() dto: NodeDto) {
-		return this.nodeService.create(dto)
+	async create(@Body() dto: NodeDto, @CurrentUser('id') userId: string) {
+		return this.nodeService.create(dto, userId)
 	}
 
 	@Patch(':id')
 	@Admin()
-	async update(@Param('id') id: string, @Body() dto: NodeDto) {
-		return this.nodeService.update(id, dto)
+	async update(
+		@Param('id') id: string,
+		@Body() dto: NodeDto,
+		@CurrentUser('id') userId: string
+	) {
+		return this.nodeService.update(id, dto, userId)
 	}
 
 	@Delete(':id')
 	@Admin()
-	async delete(@Param('id') id: string) {
-		return this.nodeService.delete(id)
+	async delete(@Param('id') id: string, @CurrentUser('id') userId: string) {
+		return this.nodeService.delete(id, userId)
 	}
 }

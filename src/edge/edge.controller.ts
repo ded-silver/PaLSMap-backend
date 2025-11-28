@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common'
 import { CreateEdgeDto } from './edge.dto'
 import { EdgeService } from './edge.servise'
 import { Admin } from 'src/auth/decorators/auth.decorator'
+import { CurrentUser } from 'src/auth/decorators/user.decorator'
 
 @Controller('edges')
 export class EdgeController {
@@ -9,8 +10,8 @@ export class EdgeController {
 
 	@Post()
 	@Admin()
-	async create(@Body() dto: CreateEdgeDto) {
-		return this.edgeService.create(dto)
+	async create(@Body() dto: CreateEdgeDto, @CurrentUser('id') userId: string) {
+		return this.edgeService.create(dto, userId)
 	}
 
 	@Get()
@@ -25,7 +26,7 @@ export class EdgeController {
 
 	@Delete(':id')
 	@Admin()
-	async delete(@Param('id') id: string) {
-		return this.edgeService.delete(id)
+	async delete(@Param('id') id: string, @CurrentUser('id') userId: string) {
+		return this.edgeService.delete(id, userId)
 	}
 }

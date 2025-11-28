@@ -6,6 +6,7 @@ import { EdgeModule } from './edge/edge.module'
 import { NodeModule } from './node/node.module'
 import { UserModule } from './user/user.module'
 import { DictionaryModule } from './dictionary/dictionary.module'
+import { NodeHistoryModule } from './node-history/node-history.module'
 
 @Module({
 	imports: [
@@ -14,7 +15,8 @@ import { DictionaryModule } from './dictionary/dictionary.module'
 		UserModule,
 		NodeModule,
 		EdgeModule,
-		DictionaryModule
+		DictionaryModule,
+		NodeHistoryModule
 	]
 })
 export class AppModule {}
