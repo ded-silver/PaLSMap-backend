@@ -7,6 +7,8 @@ import { NodeModule } from './node/node.module'
 import { UserModule } from './user/user.module'
 import { DictionaryModule } from './dictionary/dictionary.module'
 import { NodeHistoryModule } from './node-history/node-history.module'
+import { CountryModule } from './country/country.module'
+import { PathAreaModule } from './path-area/path-area.module'
 
 @Module({
 	imports: [
@@ -16,7 +18,9 @@ import { NodeHistoryModule } from './node-history/node-history.module'
 		NodeModule,
 		EdgeModule,
 		DictionaryModule,
-		NodeHistoryModule
+		NodeHistoryModule,
+		CountryModule,
+		PathAreaModule
 	]
 })
 export class AppModule {}

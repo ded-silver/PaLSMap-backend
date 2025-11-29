@@ -5,7 +5,8 @@ import {
 	Get,
 	Param,
 	Patch,
-	Post
+	Post,
+	Query
 } from '@nestjs/common'
 
 import { NodeService } from './node.service'
@@ -18,8 +19,13 @@ export class NodeController {
 	constructor(private readonly nodeService: NodeService) {}
 
 	@Get()
-	async findAll() {
-		return this.nodeService.findAll()
+	async findAll(@Query('pathAreaId') pathAreaId?: string) {
+		return this.nodeService.findAll(pathAreaId)
+	}
+
+	@Get('country/:countryId')
+	async findByCountry(@Param('countryId') countryId: string) {
+		return this.nodeService.findByCountry(countryId)
 	}
 
 	@Get('/root')

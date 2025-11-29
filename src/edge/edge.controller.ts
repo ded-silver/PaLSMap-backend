@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common'
+import {
+	Body,
+	Controller,
+	Delete,
+	Get,
+	Param,
+	Post,
+	Query
+} from '@nestjs/common'
 import { CreateEdgeDto } from './edge.dto'
 import { EdgeService } from './edge.servise'
 import { Admin } from 'src/auth/decorators/auth.decorator'
@@ -15,8 +23,13 @@ export class EdgeController {
 	}
 
 	@Get()
-	async findAll() {
-		return this.edgeService.findAll()
+	async findAll(@Query('pathAreaId') pathAreaId?: string) {
+		return this.edgeService.findAll(pathAreaId)
+	}
+
+	@Get('country/:countryId')
+	async findByCountry(@Param('countryId') countryId: string) {
+		return this.edgeService.findByCountry(countryId)
 	}
 
 	@Get(':id')

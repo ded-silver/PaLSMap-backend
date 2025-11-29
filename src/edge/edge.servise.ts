@@ -51,8 +51,30 @@ export class EdgeService {
 		return edge
 	}
 
-	async findAll() {
-		return this.prisma.edge.findMany()
+	async findAll(pathAreaId?: string) {
+		if (!pathAreaId) {
+			return this.prisma.edge.findMany()
+		}
+
+		const nodes = await this.prisma.node.findMany({
+			where: { pathAreaId },
+			select: { id: true }
+		})
+
+		const nodeIds = nodes.map(n => n.id)
+
+		if (nodeIds.length === 0) {
+			return []
+		}
+
+		const edges = await this.prisma.edge.findMany({
+			where: {
+				source: { in: nodeIds },
+				target: { in: nodeIds }
+			}
+		})
+
+		return edges
 	}
 
 	async findById(id: string) {
@@ -96,5 +118,64 @@ export class EdgeService {
 		}
 
 		return deleted
+	}
+
+	async findByCountry(countryId: string) {
+		const pathAreas = await this.prisma.pathArea.findMany({
+			where: { countryId },
+			select: { id: true }
+		})
+
+		const pathAreaIds = pathAreas.map(pa => pa.id)
+
+		if (pathAreaIds.length === 0) {
+			return []
+		}
+
+		const nodes = await this.prisma.node.findMany({
+			where: {
+				pathAreaId: {
+					in: pathAreaIds
+				}
+			},
+			select: { id: true }
+		})
+
+		const nodeIds = nodes.map(n => n.id)
+
+		if (nodeIds.length === 0) {
+			return []
+		}
+
+		return this.prisma.edge.findMany({
+			where: {
+				OR: [{ source: { in: nodeIds } }, { target: { in: nodeIds } }]
+			}
+		})
+	}
+
+	async isInterArea(edge: {
+		source: string
+		target: string
+	}): Promise<boolean> {
+		const sourceNode = await this.prisma.node.findUnique({
+			where: { id: edge.source },
+			select: { pathAreaId: true }
+		})
+
+		const targetNode = await this.prisma.node.findUnique({
+			where: { id: edge.target },
+			select: { pathAreaId: true }
+		})
+
+		if (!sourceNode || !targetNode) {
+			return true
+		}
+
+		if (!sourceNode.pathAreaId || !targetNode.pathAreaId) {
+			return false
+		}
+
+		return sourceNode.pathAreaId !== targetNode.pathAreaId
 	}
 }

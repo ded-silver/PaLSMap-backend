@@ -42,6 +42,11 @@ model Node {
   parent                Node?           @relation("NestedNode", fields: [parentId], references: [id], onDelete: Cascade)
   parentId              String?     
   children              Node[]          @relation("NestedNode")
+
+  pathAreaId            String?         @map("path_area_id")
+  pathArea              PathArea?       @relation(fields: [pathAreaId], references: [id], onDelete: SetNull)
+
+  @@index([pathAreaId])
 }
 
 model NodeData {
@@ -99,6 +104,48 @@ model Dictionary {
   @@map("dictionary")
 }
 
+model NodeHistory {
+  id          String      @id @default(uuid())
+  createdAt   DateTime    @default(now()) @map("created_at")
+  userId      String      @map("user_id")
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entityType  EntityType  @map("entity_type")
+  entityId    String      @map("entity_id")
+  actionType  ActionType  @map("action_type")
+  changes     Json        
+  description String?     @map("description")
+
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("node_history")
+}
+
+model Country {
+  id          String      @id @default(uuid())
+  name        String
+  code        String?     @unique
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  pathAreas   PathArea[]
+
+  @@map("country")
+}
+
+model PathArea {
+  id          String      @id @default(uuid())
+  name        String
+  countryId   String      @map("country_id")
+  country     Country     @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  nodes       Node[]
+
+  @@index([countryId])
+  @@map("path_area")
+}
+
+
 enum NodeType {
   OPS
   TankPark
@@ -120,23 +167,6 @@ enum NodeType {
   River
 }
 
-model NodeHistory {
-  id          String      @id @default(uuid())
-  createdAt   DateTime    @default(now()) @map("created_at")
-  userId      String      @map("user_id")
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  entityType  EntityType  @map("entity_type")
-  entityId    String      @map("entity_id")
-  actionType  ActionType  @map("action_type")
-  changes     Json        
-  description String?     @map("description")
-
-  @@index([entityType, entityId])
-  @@index([userId])
-  @@index([createdAt])
-  @@map("node_history")
-}
-
 enum EntityType {
   NODE
   EDGE
@@ -155,4 +185,5 @@ enum ActionType {
   HANDLERS_CHANGE
   LABEL_CHANGE
   TYPE_CHANGE
+  AREA_CHANGE
 }

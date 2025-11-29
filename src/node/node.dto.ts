@@ -81,6 +81,10 @@ export class NodeDto {
 	@ValidateNested()
 	@Type(() => VisualStateDto)
 	visualState?: VisualStateDto
+
+	@IsOptional()
+	@IsString()
+	pathAreaId?: string
 }
 
 export class NodeDataDto {

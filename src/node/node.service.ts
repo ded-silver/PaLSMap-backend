@@ -24,9 +24,15 @@ export class NodeService {
 		private readonly nodeHistoryService: NodeHistoryService
 	) {}
 
-	async findAll() {
+	async findAll(pathAreaId?: string) {
+		const where: any = { parentId: null }
+
+		if (pathAreaId) {
+			where.pathAreaId = pathAreaId
+		}
+
 		return this.prisma.node.findMany({
-			where: { parentId: null },
+			where,
 			include: {
 				data: true,
 				children: {
@@ -34,7 +40,14 @@ export class NodeService {
 						data: true
 					}
 				},
-				parent: true
+				parent: true,
+				pathArea: {
+					select: {
+						id: true,
+						name: true,
+						countryId: true
+					}
+				}
 			}
 		})
 	}
@@ -75,11 +88,25 @@ export class NodeService {
 				}
 			: null
 
+		if (dto.pathAreaId) {
+			const pathArea = await this.prisma.pathArea.findUnique({
+				where: { id: dto.pathAreaId }
+			})
+			if (!pathArea) {
+				throw new NotFoundException(
+					`PathArea with ID ${dto.pathAreaId} not found`
+				)
+			}
+		}
+
 		const node = await this.prisma.node.create({
 			data: {
 				type: dto.type,
 				position: dto.position,
 				parent: dto.parentId ? { connect: { id: dto.parentId } } : undefined,
+				pathArea: dto.pathAreaId
+					? { connect: { id: dto.pathAreaId } }
+					: undefined,
 				data: {
 					create: {
 						label: dto.data.label,
@@ -92,7 +119,14 @@ export class NodeService {
 			include: {
 				parent: true,
 				children: true,
-				data: true
+				data: true,
+				pathArea: {
+					select: {
+						id: true,
+						name: true,
+						countryId: true
+					}
+				}
 			}
 		})
 
@@ -110,7 +144,8 @@ export class NodeService {
 							handlers: node.data?.handlers,
 							locked: node.data?.locked,
 							visualState: node.data?.visualState,
-							parentId: node.parentId
+							parentId: node.parentId,
+							pathAreaId: node.pathAreaId
 						}
 					},
 					description: `Создана нода "${node.data?.label}"`
@@ -283,7 +318,16 @@ export class NodeService {
 	async update(id: string, dto: NodeDto, userId?: string) {
 		const node = await this.prisma.node.findUnique({
 			where: { id },
-			include: { data: true }
+			include: {
+				data: true,
+				pathArea: {
+					select: {
+						id: true,
+						name: true,
+						countryId: true
+					}
+				}
+			}
 		})
 		if (!node) {
 			throw new NotFoundException(`Node with ID ${id} not found`)
@@ -293,6 +337,7 @@ export class NodeService {
 			type: node.type,
 			position: node.position,
 			parentId: node.parentId,
+			pathAreaId: node.pathAreaId,
 			label: node.data?.label,
 			handlers: node.data?.handlers,
 			locked: node.data?.locked,
@@ -330,6 +375,17 @@ export class NodeService {
 				: null
 		}
 
+		if (dto.pathAreaId && dto.pathAreaId !== node.pathAreaId) {
+			const pathArea = await this.prisma.pathArea.findUnique({
+				where: { id: dto.pathAreaId }
+			})
+			if (!pathArea) {
+				throw new NotFoundException(
+					`PathArea with ID ${dto.pathAreaId} not found`
+				)
+			}
+		}
+
 		const updated = await this.prisma.node.update({
 			where: { id },
 			data: {
@@ -341,10 +397,23 @@ export class NodeService {
 				},
 				parent: dto.parentId
 					? { connect: { id: dto.parentId } }
-					: { disconnect: true }
+					: { disconnect: true },
+				pathArea:
+					dto.pathAreaId !== undefined
+						? dto.pathAreaId
+							? { connect: { id: dto.pathAreaId } }
+							: { disconnect: true }
+						: undefined
 			},
 			include: {
-				data: true
+				data: true,
+				pathArea: {
+					select: {
+						id: true,
+						name: true,
+						countryId: true
+					}
+				}
 			}
 		})
 
@@ -354,10 +423,33 @@ export class NodeService {
 					type: updated.type,
 					position: updated.position,
 					parentId: updated.parentId,
+					pathAreaId: updated.pathAreaId,
 					label: updated.data?.label,
 					handlers: updated.data?.handlers,
 					locked: updated.data?.locked,
 					visualState: updated.data?.visualState
+				}
+
+				if (before.pathAreaId !== after.pathAreaId) {
+					const oldAreaName = node.pathArea?.name || 'Без области'
+					const newAreaName = updated.pathArea?.name || 'Без области'
+
+					await this.nodeHistoryService.create(userId, {
+						entityType: EntityType.NODE,
+						entityId: id,
+						actionType: ActionType.AREA_CHANGE,
+						changes: {
+							before: {
+								pathAreaId: before.pathAreaId,
+								pathAreaName: oldAreaName
+							},
+							after: {
+								pathAreaId: after.pathAreaId,
+								pathAreaName: newAreaName
+							}
+						},
+						description: `Изменена область ноды "${updated.data?.label}" с "${oldAreaName}" на "${newAreaName}"`
+					})
 				}
 
 				let actionType = ActionType.UPDATE
@@ -582,6 +674,39 @@ export class NodeService {
 		return this.prisma.node.findMany({
 			where: {
 				parentId: null
+			}
+		})
+	}
+
+	async findByCountry(countryId: string) {
+		const pathAreas = await this.prisma.pathArea.findMany({
+			where: { countryId },
+			select: { id: true }
+		})
+
+		const pathAreaIds = pathAreas.map(pa => pa.id)
+
+		return this.prisma.node.findMany({
+			where: {
+				pathAreaId: {
+					in: pathAreaIds
+				}
+			},
+			include: {
+				data: true,
+				children: {
+					include: {
+						data: true
+					}
+				},
+				parent: true,
+				pathArea: {
+					select: {
+						id: true,
+						name: true,
+						countryId: true
+					}
+				}
 			}
 		})
 	}
