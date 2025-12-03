@@ -11,7 +11,7 @@ import {
 
 import { NodeService } from './node.service'
 import { NodeDataDto, NodeDto } from './node.dto'
-import { Admin } from 'src/auth/decorators/auth.decorator'
+import { Auth, Admin } from 'src/auth/decorators/auth.decorator'
 import { CurrentUser } from 'src/auth/decorators/user.decorator'
 
 @Controller('nodes')
@@ -19,31 +19,37 @@ export class NodeController {
 	constructor(private readonly nodeService: NodeService) {}
 
 	@Get()
+	@Auth()
 	async findAll(@Query('pathAreaId') pathAreaId?: string) {
 		return this.nodeService.findAll(pathAreaId)
 	}
 
 	@Get('country/:countryId')
+	@Auth()
 	async findByCountry(@Param('countryId') countryId: string) {
 		return this.nodeService.findByCountry(countryId)
 	}
 
 	@Get('/root')
+	@Auth()
 	async findRoot() {
 		return this.nodeService.findRootNodes()
 	}
 
 	@Get(':id')
+	@Auth()
 	async findById(@Param('id') id: string) {
 		return this.nodeService.findById(id)
 	}
 
 	@Get('children/:parentId')
+	@Auth()
 	async findChildren(@Param('parentId') parentId: string) {
 		return this.nodeService.findChildren(parentId)
 	}
 
 	@Get('data/:parentId')
+	@Auth()
 	async getNodeData(@Param('parentId') parentId: string) {
 		return this.nodeService.getNodeData(parentId)
 	}

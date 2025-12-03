@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common'
 import { CreateEdgeDto } from './edge.dto'
 import { EdgeService } from './edge.servise'
-import { Admin } from 'src/auth/decorators/auth.decorator'
+import { Auth, Admin } from 'src/auth/decorators/auth.decorator'
 import { CurrentUser } from 'src/auth/decorators/user.decorator'
 
 @Controller('edges')
@@ -23,16 +23,19 @@ export class EdgeController {
 	}
 
 	@Get()
+	@Auth()
 	async findAll(@Query('pathAreaId') pathAreaId?: string) {
 		return this.edgeService.findAll(pathAreaId)
 	}
 
 	@Get('country/:countryId')
+	@Auth()
 	async findByCountry(@Param('countryId') countryId: string) {
 		return this.edgeService.findByCountry(countryId)
 	}
 
 	@Get(':id')
+	@Auth()
 	async findById(@Param('id') id: string) {
 		return this.edgeService.findById(id)
 	}

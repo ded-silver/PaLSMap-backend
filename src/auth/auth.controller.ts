@@ -13,11 +13,13 @@ import {
 import { Request, Response } from 'express'
 import { AuthService } from './auth.service'
 import { AuthDto } from './dto/auth.dto'
+import { Public } from './decorators/public.decorator'
 
 @Controller('auth')
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
+	@Public()
 	@UsePipes(new ValidationPipe())
 	@HttpCode(200)
 	@Post('login')
@@ -28,6 +30,7 @@ export class AuthController {
 		return response
 	}
 
+	@Public()
 	@UsePipes(new ValidationPipe())
 	@HttpCode(200)
 	@Post('register')
@@ -44,6 +47,7 @@ export class AuthController {
 		return response
 	}
 
+	@Public()
 	@HttpCode(200)
 	@Post('login/access-token')
 	async getNewTokens(
@@ -67,6 +71,7 @@ export class AuthController {
 		return response
 	}
 
+	@Public()
 	@HttpCode(200)
 	@Post('logout')
 	async logout(@Res({ passthrough: true }) res: Response) {

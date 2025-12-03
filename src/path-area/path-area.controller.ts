@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common'
 import { PathAreaService } from './path-area.service'
 import { CreatePathAreaDto, UpdatePathAreaDto } from './path-area.dto'
-import { Admin } from 'src/auth/decorators/auth.decorator'
+import { Auth, Admin } from 'src/auth/decorators/auth.decorator'
 import { CurrentUser } from 'src/auth/decorators/user.decorator'
 
 @Controller('path-areas')
@@ -17,11 +17,13 @@ export class PathAreaController {
 	constructor(private readonly pathAreaService: PathAreaService) {}
 
 	@Get('country/:countryId')
+	@Auth()
 	async findByCountry(@Param('countryId') countryId: string) {
 		return this.pathAreaService.findByCountry(countryId)
 	}
 
 	@Get(':id')
+	@Auth()
 	async findById(@Param('id') id: string) {
 		return this.pathAreaService.findById(id)
 	}

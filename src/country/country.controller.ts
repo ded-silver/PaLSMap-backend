@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common'
 import { CountryService } from './country.service'
 import { CreateCountryDto, UpdateCountryDto } from './country.dto'
-import { Admin } from 'src/auth/decorators/auth.decorator'
+import { Auth, Admin } from 'src/auth/decorators/auth.decorator'
 import { CurrentUser } from 'src/auth/decorators/user.decorator'
 
 @Controller('countries')
@@ -17,11 +17,13 @@ export class CountryController {
 	constructor(private readonly countryService: CountryService) {}
 
 	@Get()
+	@Auth()
 	async findAll() {
 		return this.countryService.findAll()
 	}
 
 	@Get(':id')
+	@Auth()
 	async findById(@Param('id') id: string) {
 		return this.countryService.findById(id)
 	}
