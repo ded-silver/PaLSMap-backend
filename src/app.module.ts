@@ -10,6 +10,7 @@ import { DictionaryModule } from './dictionary/dictionary.module'
 import { NodeHistoryModule } from './node-history/node-history.module'
 import { CountryModule } from './country/country.module'
 import { PathAreaModule } from './path-area/path-area.module'
+import { MapVersionModule } from './map-version/map-version.module'
 import { JwtAuthGuard } from './auth/guards/jwt.guard'
 
 @Module({
@@ -22,7 +23,8 @@ import { JwtAuthGuard } from './auth/guards/jwt.guard'
 		DictionaryModule,
 		NodeHistoryModule,
 		CountryModule,
-		PathAreaModule
+		PathAreaModule,
+		MapVersionModule
 	],
 	providers: [
 		{

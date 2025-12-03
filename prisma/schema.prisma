@@ -25,6 +25,7 @@ model User{
   createdDictionaries   Dictionary[]    @relation("CreatedDictionaries")
   updatedDictionaries   Dictionary[]    @relation("UpdatedDictionaries")
   nodeHistory           NodeHistory[]
+  createdVersions       MapVersion[]
 
   @@map("user")
 }
@@ -140,11 +141,27 @@ model PathArea {
   createdAt   DateTime    @default(now()) @map("created_at")
   updatedAt   DateTime    @updatedAt @map("updated_at")
   nodes       Node[]
+  versions    MapVersion[]
 
   @@index([countryId])
   @@map("path_area")
 }
 
+model MapVersion {
+  id          String      @id @default(uuid())
+  pathAreaId  String      @map("path_area_id")
+  pathArea    PathArea    @relation(fields: [pathAreaId], references: [id], onDelete: Cascade)
+  name        String
+  description String?     @map("description")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  createdBy   User        @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById String      @map("created_by_id")
+  snapshot    Json
+
+  @@index([pathAreaId])
+  @@index([createdAt])
+  @@map("map_version")
+}
 
 enum NodeType {
   OPS
@@ -186,4 +203,5 @@ enum ActionType {
   LABEL_CHANGE
   TYPE_CHANGE
   AREA_CHANGE
+  RESTORE_VERSION
 }
